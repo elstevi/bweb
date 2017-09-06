@@ -1,0 +1,123 @@
+<style>
+#eventDiv {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	padding: 1rem;
+	background-color: #efefef;
+	text-align: center;
+}
+</style>
+<script type='text/javascript'>
+function vm_action(name, action) {
+	row_id = action + "-" + Math.random();
+	row = document.getElementById("eventTable").insertRow(1)
+	row.id = row_id
+	cell1 = row.insertCell(0)
+	cell2 = row.insertCell(1)
+	cell3 = row.insertCell(2)
+	cell1.innerHTML = action + " " + name
+	cell2.id = 'response-' + action
+	cell2.innerHTML = "<img src='/static/ajax-loader.gif'>"
+
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4)  {
+			if (this.status == 200) {
+				cell2.innerHTML = '&#10003;'
+			}
+			else {
+				cell2.innerHTML = '&#10006;'
+				cell3.innerHTML = JSON.parse(this.responseText).error
+			}
+		}
+  	};
+	xhttp.open("GET", "/vm/" + name + "/" + action, true);
+	xhttp.send();
+}
+function poll_status(name) {
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4)  {
+			if (this.status == 200) {
+				document.getElementById(name + '-status').innerHTML = JSON.parse(this.responseText).state
+			}
+			else {
+				document.getElementById(name + '-status').innerHTML = '&#10006;'
+			}
+		}
+  	};
+	xhttp.open("GET", "/vm/" + name + "/status", true);
+	xhttp.send();
+}
+</script>
+<h1>Virtual Machine Manager</h1>
+<body onload='{% for vm in vms %}poll_status("{{vm.name}}"); window.setInterval(function(){poll_status("{{vm.name}}");}, 5000);{%endfor%}'>
+	<table>
+		<tr>
+			<th>
+				Name
+			</th>
+			<th>
+				Status
+			</th>
+			<th>
+			</th>
+			<th>
+			</th>
+			<th>
+			</th>
+			<th>
+			</th>
+		</tr>
+	{% for vm in vms %}
+		<tr>
+			<td>
+				{{ vm.name }}
+			</td>
+			<td>
+				<span id='{{ vm.name }}-status'>
+				</span>
+			</td>
+			<td>
+				<a href='#' onclick="vm_action('{{ vm.name }}', 'start')">
+					Start
+				</a>
+			</td>
+			<td>
+				<a href='#' onclick="vm_action('{{ vm.name }}', 'stop')">
+					Stop
+				</a>
+			</td>
+			<td>
+				<a href='#' onclick="vm_action('{{ vm.name}}', 'restart')">
+					Restart
+				</a>
+			</td>
+			<td>
+				<a target="_blank" href='/noVNC/vnc.html?autoconnect=1&port={{vm.websocket_port}}&host={{vm.host}}'>
+					Console
+				</a>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+
+	<div id='eventDiv'>
+		<h2>Actions</h2>
+		<table id='eventTable'>
+			<tr>
+				<th>
+					Action
+				</th>
+				<th>
+					Status
+				</th>
+				<th>
+					Error
+				</th>
+			</tr>
+		</table>
+	</div>
+</body>
