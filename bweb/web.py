@@ -8,11 +8,12 @@ app = Flask(__name__, template_folder=tmpl_dir)
 
 @app.route('/')
 def vm_list():
+    vnc_host = request.headers.get('X-Forwarded-Server')
     vms = client.get_all_vms()
     vms_detail = []
     for vm in vms:
         vms_detail.append(client.get_vm_details(vm))
-    return render_template('vm_manager.html', vms=vms_detail)
+    return render_template('vm_manager.html', vms=vms_detail, vnc_host=vnc_host)
 
 @app.route('/vm/<vm_name>/<action>')
 def vm_action(vm_name, action):
