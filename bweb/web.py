@@ -1,6 +1,6 @@
 import os
 from bapiclient import client
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 # Where are our jinja templates?
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
