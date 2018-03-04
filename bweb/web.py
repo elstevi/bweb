@@ -1,6 +1,7 @@
 import os
 from bapiclient import client
 from flask import Flask, jsonify, render_template, request
+from libbhyve.custom_t import DISK_TYPES, NIC_TYPES
 
 # Where are our jinja templates?
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -25,6 +26,9 @@ def vm_action(vm_name, action):
     except KeyError:
         return jsonify(output), 200
 
+@app.route('/vm/create')
+def create():
+    return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES)
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', debug=True, port=8000)

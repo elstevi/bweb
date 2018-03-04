@@ -1,0 +1,122 @@
+<script type='text/javascript'>
+    var networkcnt = 0;
+    var diskcnt = 0;
+    function addNetwork(){
+        var newdiv = document.createElement('div');
+	    newdiv.style.border = "1px solid black";
+	    newdiv.style.padding = "10px";
+	    var title = document.createElement('h3')
+	        title.innerHTML = "Network " + networkcnt
+	    var bridgeno_label = document.createElement('label');
+	        bridgeno_label.innerHTML = "bridge: ";
+            var bridgeno = document.createElement('input');
+	        bridgeno.name = "net_" + networkcnt + "_bridge";
+	    var mac_label = document.createElement('label');
+	        mac_label.innerHTML = "mac: ";
+            var mac = document.createElement('input');
+	        mac.value       = "auto";
+	        mac.name = "net_" + networkcnt + "_mac";
+	    var driver_label = document.createElement('label');
+	        driver_label.innerHTML = "driver: ";
+            var driver = document.createElement('select');
+{% for v in NIC_TYPES %}
+            var {{NIC_TYPES[v]['short']}} = new Option();
+                {{NIC_TYPES[v]['short']}}.text  = "{{NIC_TYPES[v]['name']}} - {{NIC_TYPES[v]['description']}}";
+                {{NIC_TYPES[v]['short']}}.value = "{{NIC_TYPES[v]['name']}}";
+                driver.options.add({{NIC_TYPES[v]['short']}});
+	        driver.name = "net_" + networkcnt + "_driver";
+{% endfor %}
+	    var deletenetwork = document.createElement('a');
+	        deletenetwork.href = '#';
+	        deletenetwork.innerHTML = "Delete network";
+	    deletenetwork.onclick = function(){this.parentElement.remove();}
+	newdiv.appendChild(title);
+	newdiv.appendChild(bridgeno_label);
+	newdiv.appendChild(bridgeno);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(mac_label);
+	newdiv.appendChild(mac);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(driver_label);
+	newdiv.appendChild(driver);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(deletenetwork);
+        document.getElementById('net-bucket').appendChild(newdiv);
+	networkcnt++;
+    }
+    function addDisk(){
+        var newdiv = document.createElement('div');
+	    newdiv.style.border = "1px solid black";
+	    newdiv.style.padding = "10px";
+	    var title = document.createElement('h3')
+	        title.innerHTML = "Disk " + diskcnt
+	    var path_label = document.createElement('label');
+	        path_label.innerHTML = "path: ";
+            var path = document.createElement('input');
+	        path.name = "disk_" + diskcnt + "_path";
+	    var driver_label = document.createElement('label');
+	        driver_label.innerHTML = "driver: ";
+            var driver = document.createElement('select');
+{% for v in DISK_TYPES %}
+            var {{DISK_TYPES[v]['short']}} = new Option();
+                {{DISK_TYPES[v]['short']}}.text  = "{{DISK_TYPES[v]['name']}} - {{DISK_TYPES[v]['description']}}";
+                {{DISK_TYPES[v]['short']}}.value = "{{DISK_TYPES[v]['name']}}";
+                driver.options.add({{DISK_TYPES[v]['short']}});
+	        driver.name = "disk_" + diskcnt + "_driver";
+{% endfor %}
+	    var deletedisk = document.createElement('a');
+	        deletedisk.href = '#';
+	        deletedisk.innerHTML = "Delete disk";
+	    deletedisk.onclick = function(){this.parentElement.remove();}
+
+	newdiv.appendChild(title);
+	newdiv.appendChild(path_label);
+	newdiv.appendChild(path);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(driver_label);
+	newdiv.appendChild(driver);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(deletedisk);
+        document.getElementById('disk-bucket').appendChild(newdiv);
+	diskcnt++;
+    }
+</script>
+
+<h1>Create VM</h1>
+<body>
+	<form target='create'>
+		<label>vm name:</label>
+		<input name="name" type="text"/><br/>
+
+		<label>cpus:</label>
+		<input name="ncpus" type="text"/><br/>
+
+		<label>memory:</label>
+		<input name="memory" type="text"/><br/>
+
+		<label>onboot:</label>
+		<select name="auto_start">
+			<option value="True">Yes</option>
+			<option value="False">No</option>
+		</select><br/>
+
+		<label>iso:</label>
+		<input name="iso" type="text"/><br/>
+
+		<div style="border: 1px solid black; padding: 10px;" id='net-bucket'>
+			<h2>Networks</h2>
+		</div>
+	        <a href="#" onclick="addNetwork();">Add network</a><br/>
+
+		<div style="border: 1px solid black; padding: 10px;" id='disk-bucket'>
+			<h2>Disks</h2>
+		</div>
+		<a href="#" onclick="addDisk();">Add disk</a><br/>
+
+	</form>
+</body>
