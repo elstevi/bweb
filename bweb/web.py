@@ -26,9 +26,47 @@ def vm_action(vm_name, action):
     except KeyError:
         return jsonify(output), 200
 
-@app.route('/vm/create')
+@app.route('/vm/create', methods=['GET', 'POST'])
 def create():
-    return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES)
+    if request.method == 'GET':
+        return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES, hosts=client.get_hosts())
+    elif request.method == 'POST':
+        newvm = {}
+        newvm['network'] = []
+        newvm['disk'] = []
+        lookup_net = {}
+        lookup_disk = {}
+
+        i = 0
+        for key in request.form.keys():
+            if key[:3] == "net":
+
+                src_index = int(key[4])
+                new_key = key[6:]
+                if lookup_net.get(src_index) is None:
+                    # we do not have this in a lookup table yet
+                    newvm['network'].append({new_key: request.form[key]})
+                    lookup_net[src_index] = len(newvm['network']) - 1
+                else:
+                    newvm['network'][lookup_net.get(src_index)][new_key] = request.form[key]
+            elif key[:3] == "dsk":
+
+                src_index = int(key[4])
+                new_key = key[6:]
+                if lookup_disk.get(src_index) is None:
+                    # we do not have this in a lookup table yet
+                    newvm['disk'].append({new_key: request.form[key]})
+                    lookup_disk[src_index] = len(newvm['disk']) - 1
+                else:
+                    newvm['disk'][lookup_disk.get(src_index)][new_key] = request.form[key]
+            else:
+                newvm[key] = request.form[key]
+            i+=1
+        r = client.new_host(request.form['host'], newvm)
+        if r.status_code != '200':
+            return jsonify({'status': r.text})
+        else:
+            return jsonify({'status': 'yup'})
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', debug=True, port=8000)

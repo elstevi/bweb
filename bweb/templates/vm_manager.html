@@ -70,6 +70,8 @@ function poll_status(name) {
 			</th>
 			<th>
 			</th>
+			<th>
+			</th>
 		</tr>
 	{% for vm in vms %}
 		<tr>
@@ -93,6 +95,11 @@ function poll_status(name) {
 			<td>
 				<a href='#' onclick="vm_action('{{ vm.name}}', 'restart')">
 					Restart
+				</a>
+			</td>
+			<td>
+				<a href='#' onclick="vm_action('{{ vm.name}}', 'delete')">
+					Delete
 				</a>
 			</td>
 			<td>

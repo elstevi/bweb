@@ -56,7 +56,7 @@
 	    var path_label = document.createElement('label');
 	        path_label.innerHTML = "path: ";
             var path = document.createElement('input');
-	        path.name = "disk_" + diskcnt + "_path";
+	        path.name = "dsk_" + diskcnt + "_path";
 	    var driver_label = document.createElement('label');
 	        driver_label.innerHTML = "driver: ";
             var driver = document.createElement('select');
@@ -65,7 +65,7 @@
                 {{DISK_TYPES[v]['short']}}.text  = "{{DISK_TYPES[v]['name']}} - {{DISK_TYPES[v]['description']}}";
                 {{DISK_TYPES[v]['short']}}.value = "{{DISK_TYPES[v]['name']}}";
                 driver.options.add({{DISK_TYPES[v]['short']}});
-	        driver.name = "disk_" + diskcnt + "_driver";
+	        driver.name = "dsk_" + diskcnt + "_driver";
 {% endfor %}
 	    var deletedisk = document.createElement('a');
 	        deletedisk.href = '#';
@@ -89,7 +89,7 @@
 
 <h1>Create VM</h1>
 <body>
-	<form target='create'>
+	<form method='POST' action='/vm/create'>
 		<label>vm name:</label>
 		<input name="name" type="text"/><br/>
 
@@ -118,5 +118,13 @@
 		</div>
 		<a href="#" onclick="addDisk();">Add disk</a><br/>
 
+		<label>hypervisor:</label>
+		<select name="host">
+			{% for host in hosts %}
+			<option value="{{host}}">{{host}}</option>
+			{% endfor %}
+		</select><br/>
+
+                <input type="submit" value="Create"/>
 	</form>
 </body>
