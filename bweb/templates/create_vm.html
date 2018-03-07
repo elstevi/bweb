@@ -57,6 +57,10 @@
 	        path_label.innerHTML = "path: ";
             var path = document.createElement('input');
 	        path.name = "dsk_" + diskcnt + "_path";
+	    var size_label = document.createElement('label');
+	        size_label.innerHTML = "size: ";
+            var size = document.createElement('input');
+	        size.name = "dsk_" + diskcnt + "_size"
 	    var driver_label = document.createElement('label');
 	        driver_label.innerHTML = "driver: ";
             var driver = document.createElement('select');
@@ -67,6 +71,28 @@
                 driver.options.add({{DISK_TYPES[v]['short']}});
 	        driver.name = "dsk_" + diskcnt + "_driver";
 {% endfor %}
+	    var backing_label = document.createElement('label');
+	        backing_label.innerHTML = "backing: ";
+            var backing = document.createElement('select');
+{% for v in BACKING_TYPES %}
+            var {{BACKING_TYPES[v]['short']}} = new Option();
+                {{BACKING_TYPES[v]['short']}}.text  = "{{BACKING_TYPES[v]['name']}} - {{BACKING_TYPES[v]['description']}}";
+                {{BACKING_TYPES[v]['short']}}.value = "{{BACKING_TYPES[v]['name']}}";
+                backing.options.add({{BACKING_TYPES[v]['short']}});
+	        backing.name = "dsk_" + diskcnt + "_backing";
+{% endfor %}
+	    var create_disk_label = document.createElement('label');
+	        create_disk_label.innerHTML = "create disks?: "
+            var create_disk = document.createElement('select');
+            var yes = new Option();
+                yes.text  = "yes";
+                yes.value = "yes";
+                create_disk.options.add(yes);
+            var no = new Option();
+                no.text  = "no";
+                no.value = "no";
+                create_disk.options.add(no);
+	        create_disk.name = "dsk_" + diskcnt + "_create_disk";
 	    var deletedisk = document.createElement('a');
 	        deletedisk.href = '#';
 	        deletedisk.innerHTML = "Delete disk";
@@ -77,8 +103,20 @@
 	newdiv.appendChild(path);
 	newdiv.appendChild(document.createElement('br'));
 
+	newdiv.appendChild(size_label);
+	newdiv.appendChild(size);
+	newdiv.appendChild(document.createElement('br'));
+
 	newdiv.appendChild(driver_label);
 	newdiv.appendChild(driver);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(backing_label);
+	newdiv.appendChild(backing);
+	newdiv.appendChild(document.createElement('br'));
+
+	newdiv.appendChild(create_disk_label);
+	newdiv.appendChild(create_disk);
 	newdiv.appendChild(document.createElement('br'));
 
 	newdiv.appendChild(deletedisk);

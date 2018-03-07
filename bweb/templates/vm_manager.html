@@ -26,6 +26,7 @@ function vm_action(name, action) {
 		if (this.readyState == 4)  {
 			if (this.status == 200) {
 				cell2.innerHTML = '&#10003;'
+				location.reload()
 			}
 			else {
 				cell2.innerHTML = '&#10006;'

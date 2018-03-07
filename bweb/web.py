@@ -1,7 +1,8 @@
+import json
 import os
 from bapiclient import client
 from flask import Flask, jsonify, render_template, request
-from libbhyve.custom_t import DISK_TYPES, NIC_TYPES
+from libbhyve.custom_t import DISK_TYPES, NIC_TYPES, BACKING_TYPES
 
 # Where are our jinja templates?
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -29,7 +30,7 @@ def vm_action(vm_name, action):
 @app.route('/vm/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'GET':
-        return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES, hosts=client.get_hosts())
+        return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES, BACKING_TYPES=BACKING_TYPES, hosts=client.get_hosts())
     elif request.method == 'POST':
         newvm = {}
         newvm['network'] = []
@@ -64,7 +65,7 @@ def create():
             i+=1
         r = client.new_host(request.form['host'], newvm)
         if r.status_code != '200':
-            return jsonify({'status': r.text})
+            return jsonify(json.loads(r.text))
         else:
             return jsonify({'status': 'yup'})
 
