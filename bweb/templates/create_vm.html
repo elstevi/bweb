@@ -46,6 +46,7 @@
 	newdiv.appendChild(deletenetwork);
         document.getElementById('net-bucket').appendChild(newdiv);
 	networkcnt++;
+	return networkcnt-1;
     }
     function addDisk(){
         var newdiv = document.createElement('div');
@@ -122,20 +123,21 @@
 	newdiv.appendChild(deletedisk);
         document.getElementById('disk-bucket').appendChild(newdiv);
 	diskcnt++;
+	return diskcnt-1;
     }
 </script>
 
-<h1>Create VM</h1>
-<body>
+<body {% if vm %}onload="initialize_networks();"{% endif %}>
+	<h1>{% if vm is defined %}Edit{% else %}Create{% endif %} VM</h1>
 	<form method='POST' action='/vm/create'>
 		<label>vm name:</label>
-		<input name="name" type="text"/><br/>
+		<input name="name" type="text" value="{% if vm is defined %}{{vm.name}}{% endif %}"/><br/>
 
 		<label>cpus:</label>
-		<input name="ncpus" type="text"/><br/>
+		<input name="ncpus" type="text" value="{% if vm is defined %}{{vm.ncpus}}{% endif %}"/><br/>
 
 		<label>memory:</label>
-		<input name="memory" type="text"/><br/>
+		<input name="memory" type="text" value="{% if vm is defined %}{{vm.memory}}{% endif %}"/><br/>
 
 		<label>onboot:</label>
 		<select name="auto_start">
@@ -144,7 +146,7 @@
 		</select><br/>
 
 		<label>iso:</label>
-		<input name="iso" type="text"/><br/>
+		<input name="iso" type="text" value="{% if vm is defined %}{{vm.iso}}{% endif %}"/><br/>
 
 		<div style="border: 1px solid black; padding: 10px;" id='net-bucket'>
 			<h2>Networks</h2>
@@ -157,12 +159,66 @@
 		<a href="#" onclick="addDisk();">Add disk</a><br/>
 
 		<label>hypervisor:</label>
-		<select name="host">
+		<select {% if vm is defined %}disabled{% endif %} name="host">
 			{% for host in hosts %}
-			<option value="{{host}}">{{host}}</option>
+			<option value="{{host}}" {% if vm is defined %}{% if host|string() == vm.host|string() %}selected="selected"{% endif %}{% endif %}>{{host}}</option>
 			{% endfor %}
 		</select><br/>
 
-                <input type="submit" value="Create"/>
+		<input type="submit" value="{% if vm is defined %}Update{% else %}Create{% endif %}"/>
 	</form>
 </body>
+<script type='text/javascript'>
+	function initialize_networks() {
+	{% if vm is defined %}
+	{% for network in vm.network %}
+		var i = addNetwork();
+		bridge = document.getElementsByName('net_' + i + '_bridge')[0];
+		bridge.value = '{{network.bridge}}';
+
+		mac = document.getElementsByName('net_' + i + '_mac')[0];
+		mac.value = '{{network.mac}}';
+
+		driver = document.getElementsByName('net_' + i + '_driver')[0];
+		for (i=0; i < driver.options.length; i++){
+			if (driver.options[i].value == "{{network.driver}}"){
+				driver.options[i].selected = "selected";
+			}
+		}
+		initialize_disks();
+		
+	{% endfor %}
+	}
+	function initialize_disks() {
+	{% for disk in vm.disk %}
+		var i = addDisk();
+		path = document.getElementsByName('dsk_' + i + '_path')[0];
+		path.value = '{{disk.path}}';
+
+		size = document.getElementsByName('dsk_' + i + '_size')[0];
+		size.value = '{{disk.size}}';
+
+		driver = document.getElementsByName('dsk_' + i + '_driver')[0];
+		for (j=0; j < driver.options.length; j++){
+			if (driver.options[j].value == "{{disk.driver}}"){
+				driver.options[j].selected = "selected";
+			}
+		}
+		backing = document.getElementsByName('dsk_' + i + '_backing')[0];
+		for (j=0; j < backing.options.length; j++){
+			if (backing.options[j].value == "{{disk.backing}}"){
+				backing.options[j].selected = "selected";
+			}
+		}
+
+		create_disk = document.getElementsByName('dsk_' + i + '_create_disk')[0];
+		for (j=0; j < create_disk.options.length; j++){
+			if (create_disk.options[j].value == "{{disk.create_disk}}"){
+				create_disk.options[j].selected = "selected";
+			}
+		}
+	{% endfor %}
+	{% endif %}
+	}
+	window.onload = initialize_networks;
+</script>

@@ -27,6 +27,12 @@ def vm_action(vm_name, action):
     except KeyError:
         return jsonify(output), 200
 
+@app.route('/vm/edit/<vm_name>', methods=['GET', 'POST'])
+def edit(vm_name):
+    if request.method == 'GET':
+        vm = client.get_vm_details(vm_name)
+        return render_template('create_vm.html', DISK_TYPES=DISK_TYPES, NIC_TYPES=NIC_TYPES, BACKING_TYPES=BACKING_TYPES, hosts=client.get_hosts(), vm=vm)
+
 @app.route('/vm/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'GET':
