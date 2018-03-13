@@ -127,9 +127,9 @@
     }
 </script>
 
-<body {% if vm %}onload="initialize_networks();"{% endif %}>
+<body>
 	<h1>{% if vm is defined %}Edit{% else %}Create{% endif %} VM</h1>
-	<form method='POST' action='/vm/create'>
+	<form method='POST' action='{% if vm is defined %}/vm/edit/{{vm.name}}{% else %}/vm/create{% endif %}'>
 		<label>vm name:</label>
 		<input name="name" type="text" value="{% if vm is defined %}{{vm.name}}{% endif %}"/><br/>
 
@@ -158,12 +158,12 @@
 		</div>
 		<a href="#" onclick="addDisk();">Add disk</a><br/>
 
-		<label>hypervisor:</label>
-		<select {% if vm is defined %}disabled{% endif %} name="host">
+		{% if vm is not defined %}
+		<select  name="host">
 			{% for host in hosts %}
-			<option value="{{host}}" {% if vm is defined %}{% if host|string() == vm.host|string() %}selected="selected"{% endif %}{% endif %}>{{host}}</option>
+			<option value="{{host}}">{{host}}</option>
 			{% endfor %}
-		</select><br/>
+		</select>{% endif %}<br/>
 
 		<input type="submit" value="{% if vm is defined %}Update{% else %}Create{% endif %}"/>
 	</form>
