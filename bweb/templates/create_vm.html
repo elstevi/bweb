@@ -158,12 +158,11 @@
 		</div>
 		<a href="#" onclick="addDisk();">Add disk</a><br/>
 
-		{% if vm is not defined %}
-		<select  name="host">
+		<select {% if vm is defined %}disabled{% endif %}  name="host">
 			{% for host in hosts %}
-			<option value="{{host}}">{{host}}</option>
+			<option {% if host == vm.host %} selected {% endif %}value="{{host}}">{{host}}</option>
 			{% endfor %}
-		</select>{% endif %}<br/>
+		</select><br/>
 
 		<input type="submit" value="{% if vm is defined %}Update{% else %}Create{% endif %}"/>
 	</form>
