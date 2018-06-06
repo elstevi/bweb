@@ -1,7 +1,7 @@
 import json
 import os
 from bapiclient import client
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from libbhyve.custom_t import DISK_TYPES, NIC_TYPES, BACKING_TYPES
 
 # Where are our jinja templates?
@@ -9,24 +9,22 @@ tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
 
 @app.route('/')
-def vm_list():
+def vm_manager():
+    if request.args.get('message') != None:
+        message = request.args.get('message')
+    else:
+        message = None
     vnc_host = request.headers.get('X-Forwarded-Server')
     vms = client.get_all_vms()
     vms_detail = []
     for vm in vms:
         vms_detail.append(client.get_vm_details(vm))
-    return render_template('vm_manager.html', vms=vms_detail, vnc_host=vnc_host)
+    return render_template('vm_manager.html', vms=vms_detail, vnc_host=vnc_host, message=message)
 
 @app.route('/vm/<vm_name>/<action>')
 def vm_action(vm_name, action):
     output = client.vm_action(vm_name, action)
-    print output
-    try:
-        output['error']
-        return jsonify(output), 500
-    except KeyError:
-        return jsonify(output), 200
-
+    return jsonify(output), 200
 
 def request_to_json(request):
     newvm = {}
@@ -61,6 +59,9 @@ def request_to_json(request):
         i+=1
     return newvm
 
+def error_page(summary, status_code, error):
+    return render_template('error', summary=summary, status_code=status_code, error=error)
+
 @app.route('/vm/edit/<vm_name>', methods=['GET', 'POST'])
 def edit(vm_name):
     if request.method == 'GET':
@@ -70,7 +71,7 @@ def edit(vm_name):
         newvm = request_to_json(request)
         host = client.get_vm_details(vm_name)['host']
         vm = client.edit_host(host, newvm)
-        return jsonify({'status': 'idk'})
+        return redirect(url_for('vm_manager', message='VM updated'))
 
 @app.route('/vm/create', methods=['GET', 'POST'])
 def create():
@@ -79,10 +80,7 @@ def create():
     elif request.method == 'POST':
         newvm = request_to_json(request)
         r = client.new_host(request.form['host'], newvm)
-        if r.status_code != '200':
-            return jsonify(json.loads(r.text))
-        else:
-            return jsonify({'status': 'yup'})
+        return redirect(url_for('vm_manager', message='VM created'))
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', debug=True, port=8000)

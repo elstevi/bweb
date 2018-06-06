@@ -160,7 +160,7 @@
 
 		<select {% if vm is defined %}disabled{% endif %}  name="host">
 			{% for host in hosts %}
-			<option {% if host == vm.host %} selected {% endif %}value="{{host}}">{{host}}</option>
+			<option {% if vm is defined and host == vm.host %} selected {% endif %}value="{{host}}">{{host}}</option>
 			{% endfor %}
 		</select><br/>
 
